@@ -1,4 +1,4 @@
-package me.tt.shark;
+package me.tt5397194.vpn;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("me.tt.shark", appContext.getPackageName());
+        assertEquals("me.tt5397194.vpn", appContext.getPackageName());
     }
 }

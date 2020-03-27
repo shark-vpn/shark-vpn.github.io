@@ -1,10 +1,12 @@
-package me.tt.shark;
+package me.tt5397194.vpn;
 
 import android.content.Intent;
 import android.net.VpnService;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+
+import me.tt5397194.vpn.R;
 
 public class MainActivity extends AppCompatActivity {
 

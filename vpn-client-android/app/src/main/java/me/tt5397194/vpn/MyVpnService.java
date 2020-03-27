@@ -1,4 +1,4 @@
-package me.tt.shark;
+package me.tt5397194.vpn;
 
 import android.content.Intent;
 import android.net.VpnService;

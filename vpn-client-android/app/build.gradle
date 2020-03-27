@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "me.tt.shark"
+        applicationId "me.tt5397194.vpn"
         minSdkVersion 22
         targetSdkVersion 28
         versionCode 1

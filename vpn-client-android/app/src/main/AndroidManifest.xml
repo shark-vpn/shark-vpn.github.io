@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.tt.shark">
+    package="me.tt5397194.vpn">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name="me.tt.shark.MyVpnService"
+            android:name="me.tt5397194.vpn.MyVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE" >
             <intent-filter>
                 <action android:name="android.net.VpnService" />
