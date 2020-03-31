@@ -153,98 +153,71 @@ protected void onActivityResult(int request, int result, Intent data) {
 ```
 ```java
 import android.net.VpnService;
+public class MyVpnService extends VpnService { ... }
 
-public class MyVpnService extends VpnService {
-    static String SERVER_ADDR = "192.168.1.169";
-    static int SERVER_PORT = 7194;
-    static int MAX_BKG_LEN = 65535;
+static String SERVER_ADDR = "192.168.1.169";
+static int SERVER_PORT = 7194;
+static int MAX_BKG_LEN = 65535;
 
-    static ParcelFileDescriptor mInterface;
-    FileInputStream in;
-    FileOutputStream out;
-    DatagramSocket sock;
-    InetAddress serverAddr;
+@Override
+public int onStartCommand(Intent intent, int flags, int startId) {
+    Builder builder = new Builder();
+    builder.setSession("MyVPNService");
+    builder.addAddress("192.168.194.1", 24); //这个ip要和服务器的虚拟网卡ip在同一个网段
+    builder.addDnsServer("8.8.8.8");
+    builder.addRoute("0.0.0.0", 0);
 
-    Thread mThread1;
-    Thread mThread2;
+    static ParcelFileDescriptor mInterface = builder.establish();
+    FileInputStream in = new FileInputStream(mInterface.getFileDescriptor());
+    FileOutputStream out = new FileOutputStream(mInterface.getFileDescriptor());
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Builder builder = new Builder();
-        builder.setSession("MyVPNService");
-        builder.addAddress("192.168.194.1", 24);
-        builder.addDnsServer("8.8.8.8");
-        builder.addRoute("0.0.0.0", 0);
-
-        mInterface = builder.establish();
-        in = new FileInputStream(mInterface.getFileDescriptor());
-        out = new FileOutputStream(mInterface.getFileDescriptor());
-
-        try {
-            serverAddr = InetAddress.getByName(SERVER_ADDR);
-            sock = new DatagramSocket();
-            sock.setSoTimeout(500);
-            protect(sock);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return START_NOT_STICKY;
-        }
-
-        mThread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int length;
-                    byte[] ip_pkg = new byte[MAX_BKG_LEN];
-                    while ((length = in.read(ip_pkg)) >= 0) {
-                        if (length == 0) {
-                            continue;
-                        }
-                        DatagramPacket msg = new DatagramPacket(
-                                ip_pkg, length, serverAddr, SERVER_PORT);
-                        sock.send(msg);
-                    }
-                    in.close();
-                } catch (Exception e) {
-                    Log.e(null, e.getMessage());
-                }
-            }
-        }, "sender");
-
-        mThread2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        byte[] ip_buf = new byte[MAX_BKG_LEN];
-                        DatagramPacket msg_r = new DatagramPacket(
-                                ip_buf, MAX_BKG_LEN, serverAddr, SERVER_PORT);
-                        try {
-                            sock.receive(msg_r);
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        int pkg_len = msg_r.getLength();
-                        if (pkg_len > 0) {
-                            out.write(ip_buf, 0, pkg_len);
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.e(null, e.getMessage());
-                }
-            }
-        }, "receiver");
-
-        mThread1.start();
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        mThread2.start();
-        return START_STICKY;
-    }
+    InetAddress serverAddr = InetAddress.getByName(SERVER_ADDR);
+    DatagramSocket sock = new DatagramSocket();
+    sock.setSoTimeout(0); //超时为无穷大
+    protect(sock); //保护这个连接的数据不会进入虚拟网卡
+    
+    //启动两个线程一收一发
+    
+    return START_STICKY
 }
+
+//发线程
+@Override
+public void run() {
+    int length;
+    byte[] ip_pkg = new byte[MAX_BKG_LEN];
+    while ((length = in.read(ip_pkg)) >= 0) {
+        if (length == 0) {
+            continue;
+        }
+        DatagramPacket msg = new DatagramPacket(
+            ip_pkg, length, serverAddr, SERVER_PORT);
+        sock.send(msg);
+    }
+    in.close();
+}
+
+//收线程
+@Override
+public void run() {
+    byte[] ip_buf = new byte[MAX_BKG_LEN];
+    while (true) {
+        DatagramPacket msg_r = new DatagramPacket(
+            ip_buf, MAX_BKG_LEN, serverAddr, SERVER_PORT);
+        sock.receive(msg_r);
+        int pkg_len = msg_r.getLength();
+        if (pkg_len == 0) {
+            continue;
+        } else if (pkg_len < 0) {
+            break;
+        }
+        out.write(ip_buf, 0, pkg_len);
+    }
+    out.close();
+}
+
+// 注意: 代码里省略了很多 try catch.
+
 ```
 
 二. 完整代码
