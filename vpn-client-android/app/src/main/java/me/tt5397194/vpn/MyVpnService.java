@@ -38,7 +38,7 @@ public class MyVpnService extends VpnService {
         try {
             serverAddr = InetAddress.getByName(SERVER_ADDR);
             sock = new DatagramSocket();
-            sock.setSoTimeout(500);
+            sock.setSoTimeout(0); //0代表无穷大
             protect(sock);
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,20 +70,19 @@ public class MyVpnService extends VpnService {
             @Override
             public void run() {
                 try {
+                    byte[] ip_buf = new byte[MAX_BKG_LEN];
                     while (true) {
-                        byte[] ip_buf = new byte[MAX_BKG_LEN];
                         DatagramPacket msg_r = new DatagramPacket(
                                 ip_buf, MAX_BKG_LEN, serverAddr, SERVER_PORT);
-                        try {
-                            sock.receive(msg_r);
-                        } catch (Exception e) {
-                            continue;
-                        }
+                        sock.receive(msg_r);
                         int pkg_len = msg_r.getLength();
                         if (pkg_len > 0) {
                             out.write(ip_buf, 0, pkg_len);
+                        } else if (pkg_len < 0) {
+                            break;
                         }
                     }
+                    out.close();
                 } catch (Exception e) {
                     Log.e(null, e.getMessage());
                 }
