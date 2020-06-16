@@ -146,7 +146,7 @@ protected void onActivityResult(int request, int result, Intent data) {
     super.onActivityResult(request, result, data);
     if (result == RESULT_OK) {
         Intent intent = new Intent(this, MyVpnService.class);
-		startService(intent);
+        startService(intent);
     }
 }
 
