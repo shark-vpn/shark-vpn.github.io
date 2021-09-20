@@ -1,4 +1,4 @@
-# 如何开发一套 VPN
+﻿# 如何开发一套 VPN
 
 # 0. 写在前面
 
@@ -114,7 +114,7 @@ sendto(udp_fd, buf, n, 0, clent_addr, sizeof(struct sockaddr_in));
 
 四. 完整代码
 
-[vpn-server](https://github.com/shark-vpn/shark-vpn.github.io/tree/master/vpn-server)
+[vpn-server-demo](https://github.com/shark-vpn/shark-vpn.github.io/tree/master/vpn-server-demo)
 
 代码完全使用 C 语言编程.
 
@@ -222,7 +222,7 @@ public void run() {
 
 二. 完整代码
 
-[vpn-client-android](https://github.com/shark-vpn/shark-vpn.github.io/tree/master/vpn-client-android)
+[vpn-client-demo](https://github.com/shark-vpn/shark-vpn.github.io/tree/master/vpn-client-demo)
 
 这是一个完整的安卓项目
 
